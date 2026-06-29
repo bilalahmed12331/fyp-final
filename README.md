@@ -1,105 +1,76 @@
-# LifeLink Frontend
+# LifeLink Backend
 
-This directory contains the React frontend for the LifeLink application, built with TanStack Start, React, and TailwindCSS.
+This directory contains the backend components for the LifeLink application, including Supabase edge functions and database schema.
 
 ## Structure
 
 ```
-frontend/
-├── src/
-│   ├── components/        # Reusable UI components
-│   ├── hooks/            # Custom React hooks
-│   ├── integrations/     # External integrations (Supabase client)
-│   ├── lib/              # Utility functions and helpers
-│   ├── routes/           # Page routes
-│   ├── types/            # TypeScript type definitions
-│   ├── assets/           # Static assets
-│   ├── server.ts         # Server entry point
-│   ├── router.tsx        # Router configuration
-│   └── start.ts          # Application entry point
-├── package.json          # Frontend dependencies
-├── vite.config.ts        # Vite configuration
-├── tsconfig.json         # TypeScript configuration
-└── .env                  # Environment variables
+backend/
+├── supabase/
+│   ├── functions/          # Supabase Edge Functions
+│   │   ├── match-donors/
+│   │   ├── create-sos-request/
+│   │   ├── update-request-status/
+│   │   ├── get-tracking-data/
+│   │   └── get-dashboard-stats/
+│   ├── config.toml        # Supabase configuration
+│   └── migrations/        # Database migrations
+├── 01-tables.sql          # Database tables schema
+├── 02-rls-policies.sql    # Row Level Security policies
+├── 03-auth-setup.sql      # Auth triggers and helper functions
+├── 04-sample-data.sql     # Sample data for testing
+└── package.json           # Backend dependencies
 ```
 
-## Tech Stack
+## Edge Functions
 
-- **React 19** - UI library
-- **TanStack Start** - Full-stack React framework
-- **TanStack Router** - File-based routing
-- **TanStack Query** - Data fetching and caching
-- **TailwindCSS** - Styling
-- **Radix UI** - Component library
-- **Supabase** - Authentication and database client
-- **Zod** - Schema validation
+1. **match-donors**: Finds compatible donors by blood group and location
+2. **create-sos-request**: Creates blood request with auto-generated code
+3. **update-request-status**: Updates request status and handles rewards
+4. **get-tracking-data**: Returns tracking info for a request
+5. **get-dashboard-stats**: Returns role-specific dashboard statistics
 
 ## Setup
 
 ### 1. Install Dependencies
 
 ```bash
-cd frontend
+cd backend
 npm install
 ```
 
-### 2. Environment Variables
+### 2. Link to Supabase Project
 
-Ensure `.env` file exists with:
+```bash
+supabase link --project-ref tsdnizxxjpxqotycaxdb
+```
+
+### 3. Deploy Edge Functions
+
+```bash
+# Deploy all functions
+npm run deploy:functions
+
+# Or deploy individual functions
+npm run deploy:match-donors
+npm run deploy:create-sos-request
+# etc.
+```
+
+## Database Setup
+
+Run the SQL scripts in the Supabase Dashboard in this order:
+
+1. `01-tables.sql` - Create tables
+2. `02-rls-policies.sql` - Setup RLS policies
+3. `03-auth-setup.sql` - Setup auth triggers
+4. `04-sample-data.sql` - (Optional) Add sample data
+
+## Environment Variables
+
+Create a `.env` file in the `supabase` directory:
 
 ```env
-VITE_SUPABASE_PROJECT_ID=tsdnizxxjpxqotycaxdb
-VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key_here
-VITE_SUPABASE_URL=https://tsdnizxxjpxqotycaxdb.supabase.co
-```
-
-### 3. Run Development Server
-
-```bash
-npm run dev
-```
-
-The frontend will be available at: http://localhost:5173
-
-### 4. Build for Production
-
-```bash
-npm run build
-```
-
-### 5. Preview Production Build
-
-```bash
-npm run preview
-```
-
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run build:dev` - Build in development mode
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run format` - Format code with Prettier
-
-## Pages
-
-- **Home** (`/`) - Landing page with features and stats
-- **Auth** (`/auth`) - Login/Register page
-- **Smart Matching** (`/smart-matching`) - AI-powered donor matching
-- **Donor Dashboard** (`/donor-dashboard`) - Donor stats, donations, achievements
-- **Patient Dashboard** (`/patient-dashboard`) - Blood requests, tracking
-- **Hospital Dashboard** (`/hospital-dashboard`) - Inventory, pending requests
-
-## Backend Integration
-
-The frontend communicates with the backend through:
-1. **Supabase Client** - Direct database access with RLS policies
-2. **Edge Functions** - Server-side logic for complex operations
-
-Edge functions are called from the frontend using the Supabase client:
-```typescript
-const { data, error } = await supabase.functions.invoke('match-donors', {
-  body: { blood_group: 'O+', latitude: 31.5204, longitude: 74.3587 }
-})
+SUPABASE_URL=https://tsdnizxxjpxqotycaxdb.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 ```
