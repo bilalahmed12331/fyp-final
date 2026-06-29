@@ -1,0 +1,12 @@
+[phases.build]
+cmds = ["npm run build"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.start]
+cmd = "npm run preview"
+
+[static]
+# Serve the built static files
+guest = "static"
